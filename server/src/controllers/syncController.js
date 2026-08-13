@@ -1,38 +1,46 @@
-const axios = require('axios');
+const githubService = require('../services/githubService');
 
-class GitHubService {
-  constructor() {
-    this.token = process.env.GITHUB_TOKEN;
-    this.gistId = process.env.SUPER_APP_GIST_ID;
+class SyncController {
+  // Handler untuk GitHub Webhook (Real-time push)
+  handleWebhook(req, res) {
+    const event = req.headers['x-github-event'];
+    
+    if (event === 'ping') {
+      return res.status(200).json({ message: 'Webhook connected successfully' });
+    }
+
+    if (event === 'gists') {
+      const payload = req.body;
+      console.log(`[Webhook] Gist ${payload.gist.id} telah diperbarui.`);
+      
+      // Di sini Anda bisa memicu WebSocket broadcast ke client yang terhubung
+      // global.io.emit('gist-updated', payload.gist);
+      
+      return res.status(200).json({ status: 'success', message: 'Sync triggered' });
+    }
+
+    res.status(400).json({ error: 'Unsupported event type' });
   }
 
-  async fetchGist(etag = null) {
+  // Handler untuk Smart Polling dengan ETag Cache
+  async pollGist(req, res) {
     try {
-      const headers = {
-        Accept: 'application/vnd.github+json',
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
-        ...(etag && { 'If-None-Match': etag })
-      };
+      const clientEtag = req.headers['if-none-match'];
+      const result = await githubService.fetchGist(clientEtag);
 
-      const response = await axios.get(`https://api.github.com/gists/${this.gistId}`, {
-        headers,
-        validateStatus: (status) => status === 200 || status === 304
-      });
-
-      if (response.status === 304) {
-        return { modified: false };
+      if (!result.modified) {
+        return res.status(304).send();
       }
 
-      return {
-        modified: true,
-        etag: response.headers['etag'],
-        data: response.data.files
-      };
+      res.setHeader('ETag', result.etag);
+      return res.status(200).json({
+        status: 'success',
+        data: result.data
+      });
     } catch (error) {
-      console.error('[GitHubService] Error fetching Gist:', error.message);
-      throw new Error('Gagal mengambil data dari GitHub Gists.');
+      res.status(500).json({ status: 'error', message: error.message });
     }
   }
 }
 
-module.exports = new GitHubService();
+module.exports = new SyncController();
