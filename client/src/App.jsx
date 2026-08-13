@@ -1,9 +1,11 @@
+// ... kode sebelumnya tetap utuh ...
 import React, { useEffect, useState } from 'react';
 import ClientSyncEngine from './core/sync/syncEngine';
 import { applyTheme } from './core/registry/themeManager';
 import ErrorBoundary from './components/ErrorBoundary';
 
-const GIST_ID = 'YOUR_GIST_ID_HERE'; // Ganti dengan Gist ID Anda
+// Gist ID yang diintegrasikan dari tautan pengguna
+const GIST_ID = 'baa6c116e4813918192943b16862c93c';
 
 export default function App() {
   const [gistData, setGistData] = useState(null);
@@ -19,7 +21,6 @@ export default function App() {
         setIsOffline(offlineMode);
         setErrorMessage(null);
 
-        // Jika Gist memiliki file theme.json, terapkan secara live
         if (files['theme.json']) {
           applyTheme(files['theme.json'].content);
         }
@@ -39,7 +40,8 @@ export default function App() {
       <header style={{ marginBottom: '2rem', borderBottom: '1px solid #eaeaea', paddingBottom: '1rem' }}>
         <h1>🚀 Modular Super App</h1>
         <p>Status Sinkronisasi: {isOffline ? '🔴 Mode Offline (Cache Lokal)' : '🟢 Terhubung secara Live (GitHub Gists)'}</p>
-        {isOffline && <small style={{ color: '#faad14' }}>Koneksi ke GitHub terputus. Menggunakan konfigurasi versi terakhir yang valid.</small>}
+        <p><small>Gist Target: <code>{GIST_ID}</code></small></p>
+        {isOffline && <small style={{ color: '#faad14' }}>Koneksi ke GitHub terputus. Menggunakan konfigurasi versi terakhir.</small>}
         {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
       </header>
 
@@ -50,14 +52,14 @@ export default function App() {
               <h2>Konfigurasi Aktif dari Gist:</h2>
               <ul>
                 {Object.keys(gistData).map((filename) => (
-                  <li key={filename}>
+                  <li key={filename} style={{ marginBottom: '0.5rem' }}>
                     <strong>{filename}</strong> ({gistData[filename].language || 'text'})
                   </li>
                 ))}
               </ul>
             </div>
           ) : (
-            <p>Memuat konfigurasi awal dari Super App...</p>
+            <p>Memuat konfigurasi awal dari Gist...</p>
           )}
         </ErrorBoundary>
       </main>
