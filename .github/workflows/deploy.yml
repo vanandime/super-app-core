@@ -25,6 +25,14 @@ jobs:
         with:
           node-version: 20
 
+      - name: Diagnostic - Check Directory Structure
+        run: |
+          echo "=== ROOT DIRECTORY ==="
+          pwd
+          ls -la
+          echo "=== CLIENT DIRECTORY ==="
+          ls -la client
+
       - name: Install Dependencies & Build Vite App
         run: |
           cd client
