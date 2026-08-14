@@ -2,7 +2,7 @@ name: Deploy Vite Super App to GitHub Pages
 
 on:
   push:
-    branches: [ main ] # Sesuaikan dengan branch utama Anda
+    branches: [ main ]
 
 permissions:
   contents: read
