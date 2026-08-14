@@ -23,21 +23,17 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
 
-      - name: Check and Build Client App
-        run: |
-          echo "Memeriksa direktori client..."
-          cd client
-          if [ -f "package.json" ]; then
-            echo "package.json ditemukan. Menjalankan instalasi dependensi..."
-            npm install
-            echo "Menjalankan build Vite..."
-            npm run build
-          else
-            echo "❌ ERROR: package.json tidak ditemukan di dalam folder client!"
-            exit 1
-          fi
+      - name: Install Dependencies
+        working-directory: ./client
+        run: npm install
+
+      - name: Build Vite App
+        working-directory: ./client
+        run: npm run build
 
       - name: Setup Pages Environment
         uses: actions/configure-pages@v4
