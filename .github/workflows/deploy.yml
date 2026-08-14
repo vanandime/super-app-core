@@ -25,19 +25,13 @@ jobs:
         with:
           node-version: 20
 
-      - name: Diagnostic - Check Directory Structure
-        run: |
-          echo "=== ROOT DIRECTORY ==="
-          pwd
-          ls -la
-          echo "=== CLIENT DIRECTORY ==="
-          ls -la client
+      - name: Install Dependencies
+        working-directory: ./client
+        run: npm install
 
-      - name: Install Dependencies & Build Vite App
-        run: |
-          cd client
-          npm install
-          npm run build
+      - name: Build Vite App
+        working-directory: ./client
+        run: npm run build
 
       - name: Setup Pages Environment
         uses: actions/configure-pages@v4
